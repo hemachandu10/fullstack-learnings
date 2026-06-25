@@ -1,0 +1,847 @@
+# jwt authentication flow
+
+1. User Logs In
+
+User enters:
+
+Email: hema@gmail.com
+Password: 123456
+
+React sends a request:
+
+POST /login
+{
+  email: "hema@gmail.com",
+  password: "123456"
+}
+2. Server Verifies Credentials
+
+Express checks the database:
+
+const user = await User.findOne({ email });
+
+if (!user) {
+   return res.status(400).json("Invalid credentials");
+}
+
+Then compares passwords.
+
+const match = await bcrypt.compare(password, user.password);
+
+If correct → create JWT.
+
+3. Server Generates JWT
+const token = jwt.sign(
+   { id: user._id },
+   "mySecretKey",
+   { expiresIn: "1d" }
+);
+
+JWT contains:
+
+{
+  "id": "12345"
+}
+
+and is digitally signed using the secret key.
+
+Server sends:
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIs..."
+}
+4. Client Stores Token
+
+React receives token:
+
+localStorage.setItem("token", data.token);
+
+Now user is considered logged in.
+
+5. User Requests Protected Data
+
+Suppose user visits Profile page.
+
+React sends:
+
+GET /profile
+
+with token in headers:
+
+headers: {
+   Authorization: `Bearer ${token}`
+}
+
+Request:
+
+GET /profile
+Authorization: Bearer eyJhbGciOiJIUzI1Ni...
+6. Authentication Middleware Runs
+
+Before reaching the route:
+
+app.get("/profile", authMiddleware, profileController);
+
+Middleware extracts token:
+
+const token =
+req.header("Authorization").replace("Bearer ", "");
+7. JWT Verification
+
+Server checks:
+
+const decoded = jwt.verify(token, "mySecretKey");
+
+If:
+
+Token modified ❌
+Token expired ❌
+Invalid signature ❌
+
+Then:
+
+return res.status(401).json("Unauthorized");
+
+Otherwise:
+
+decoded = {
+   id: "12345"
+}
+8. User Information Attached
+
+Middleware stores user data:
+
+req.user = decoded;
+next();
+
+Now route can access:
+
+req.user.id
+9. Protected Route Executes
+app.get("/profile", authMiddleware, async (req,res)=>{
+   const user = await User.findById(req.user.id);
+   res.json(user);
+});
+
+User receives profile data.
+
+Complete Flow Diagram
+User Login
+    │
+    ▼
+React sends Email + Password
+    │
+    ▼
+Express verifies credentials
+    │
+    ▼
+JWT created
+    │
+    ▼
+Token sent to React
+    │
+    ▼
+Stored in localStorage
+    │
+    ▼
+User requests protected route
+    │
+    ▼
+Token sent in Authorization header
+    │
+    ▼
+Auth Middleware
+    │
+    ▼
+jwt.verify()
+    │
+ ┌──┴──┐
+ │Valid│
+ └──┬──┘
+    ▼
+Route executes
+    │
+    ▼
+Data returned
+
+Invalid/Expired
+    │
+    ▼
+401 Unauthorized
+
+Why JWT is Stateless?
+
+In traditional session authentication:
+
+Client → Session ID
+Server → Stores session in memory/database
+
+In JWT authentication:
+
+Client → JWT Token
+Server → Does NOT store session
+
+The token itself contains the user's identity, so the server only verifies the signature.
+ That's why JWT authentication is called stateless authentication.
+
+######how the digital signature is done in detail??
+
+In JWT, the "digital signature" ensures that nobody can modify the token without the server noticing.
+
+JWT Structure
+
+A JWT has 3 parts:
+
+Header.Payload.Signature
+
+Example:
+
+xxxxx.yyyyy.zzzzz
+1. Header
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+
+After Base64 encoding:
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+2. Payload
+{
+  "id": "12345"
+}
+
+After Base64 encoding:
+
+eyJpZCI6IjEyMzQ1In0
+3. Signature Creation
+
+Suppose the secret key is:
+
+mySecretKey
+
+The server combines:
+
+Base64(Header) + "." + Base64(Payload)
+
+Result:
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+eyJpZCI6IjEyMzQ1In0
+
+Then it applies the HMAC-SHA256 algorithm:
+
+HMAC_SHA256(
+    "header.payload",
+    "mySecretKey"
+)
+
+Output:
+
+abcxyz123...
+
+This becomes the signature.
+
+Final JWT:
+
+header.payload.signature
+How Verification Works
+
+Suppose a client sends:
+
+header.payload.signature
+
+The server:
+
+Step 1
+
+Separates:
+
+header
+payload
+signature
+Step 2
+
+Uses the same secret key:
+
+mySecretKey
+
+to calculate a new signature:
+
+newSignature =
+HMAC_SHA256(header.payload, mySecretKey)
+Step 3
+
+Compares:
+
+Received Signature
+==
+New Signature
+
+If equal:
+
+Token is authentic
+
+Otherwise:
+
+Invalid token
+What If Someone Changes the Payload?
+
+Original payload:
+
+{
+  "id": "12345"
+}
+
+Attacker changes it to:
+
+{
+  "id": "99999"
+}
+
+Now:
+
+header.modifiedPayload.signature
+
+When the server recalculates the signature:
+
+HMAC_SHA256(
+    header.modifiedPayload,
+    mySecretKey
+)
+
+it gets a completely different result.
+
+Expected Signature ≠ Received Signature
+
+Verification fails.
+
+Why Can't the Attacker Create a New Signature?
+
+To create a valid signature, the attacker needs:
+
+mySecretKey
+
+which is stored only on the server.
+
+Without the secret key:
+
+Valid Signature = Impossible
+Simple Analogy
+
+Imagine the payload is a document:
+
+User ID = 12345
+
+The server stamps it with a special seal (signature).
+
+Document + Secret Seal
+
+If anyone changes:
+
+User ID = 99999
+
+the seal no longer matches the document.
+
+The server immediately detects the tampering.
+
+That's exactly what the JWT digital signature does: it guarantees integrity (the data wasn't changed) and
+authenticity (it was signed by the server).
+
+###how we send authorised request to the server using token in detail?
+
+Let's follow one complete request from browser → server.
+
+## Step 1: User Logs In
+
+React sends:
+
+```javascript
+axios.post("http://localhost:5000/login", {
+  email,
+  password
+});
+```
+
+Server verifies credentials and returns:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1Ni..."
+}
+```
+
+React stores it:
+
+```javascript
+localStorage.setItem("token", data.token);
+```
+
+---
+
+## Step 2: User Wants Protected Data
+
+Suppose user clicks **Profile** page.
+
+Before sending request, React reads token:
+
+```javascript
+const token = localStorage.getItem("token");
+```
+
+---
+
+## Step 3: Add Token to Request Header
+
+```javascript
+axios.get("http://localhost:5000/profile", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+```
+
+Actual HTTP request becomes:
+
+```http
+GET /profile HTTP/1.1
+Host: localhost:5000
+
+Authorization: Bearer eyJhbGciOiJIUzI1Ni...
+```
+
+Notice the token is sent in the **Authorization header**.
+
+---
+
+## Step 4: Request Reaches Express Server
+
+Route:
+
+```javascript
+app.get("/profile", authMiddleware, getProfile);
+```
+
+Before `getProfile()` runs, Express executes:
+
+```javascript
+authMiddleware
+```
+
+---
+
+## Step 5: Middleware Extracts Token
+
+```javascript
+const authHeader = req.header("Authorization");
+```
+
+Value:
+
+```text
+Bearer eyJhbGciOiJIUzI1Ni...
+```
+
+Remove `"Bearer "`:
+
+```javascript
+const token = authHeader.replace("Bearer ", "");
+```
+
+Now:
+
+```text
+eyJhbGciOiJIUzI1Ni...
+```
+
+---
+
+## Step 6: Verify Token
+
+```javascript
+const decoded = jwt.verify(
+    token,
+    process.env.JWT_SECRET
+);
+```
+
+JWT library:
+
+1. Reads header
+2. Reads payload
+3. Recalculates signature
+4. Compares signatures
+
+If token is invalid:
+
+```javascript
+return res.status(401).json({
+    message: "Unauthorized"
+});
+```
+
+---
+
+## Step 7: Extract User Information
+
+Suppose payload is:
+
+```json
+{
+  "id": "12345"
+}
+```
+
+After verification:
+
+```javascript
+decoded = {
+   id: "12345"
+}
+```
+
+Store it:
+
+```javascript
+req.user = decoded;
+```
+
+Now:
+
+```javascript
+req.user.id
+```
+
+contains:
+
+```text
+12345
+```
+
+---
+
+## Step 8: Route Handler Uses User ID
+
+```javascript
+const user =
+await User.findById(req.user.id);
+
+res.json(user);
+```
+
+Database query:
+
+```javascript
+User.findById("12345")
+```
+
+User data is returned.
+
+---
+
+## Full Request Flow
+
+```text
+React
+  │
+  │ Login
+  ▼
+Server
+  │
+  │ Generates JWT
+  ▼
+React stores token
+  │
+  │ GET /profile
+  │ Authorization: Bearer JWT
+  ▼
+Express Middleware
+  │
+  │ jwt.verify()
+  ▼
+Token Valid?
+  │
+ ┌┴─────────┐
+ │           │
+Yes         No
+ │           │
+ ▼           ▼
+req.user   401
+ │
+ ▼
+Route Handler
+ │
+ ▼
+Database
+ │
+ ▼
+Response
+```
+
+## Why Use Authorization Header?
+
+Because every request can independently prove who the user is.
+
+For example:
+
+```http
+GET /profile
+Authorization: Bearer JWT
+```
+
+```http
+POST /notes
+Authorization: Bearer JWT
+```
+
+```http
+DELETE /notes/5
+Authorization: Bearer JWT
+```
+
+The server doesn't need to remember sessions. It simply verifies the JWT on each request and knows which user is making the request.
+
+This is why JWT authentication is called **stateless authentication**—the token carries the user's identity, and each request is authenticated using that token.
+
+
+### conclusion
+Here's the **complete JWT Authentication workflow** used in most MERN applications.
+
+```text
+┌─────────────────────┐
+│      USER           │
+└──────────┬──────────┘
+           │
+           │ 1. Enter Email & Password
+           ▼
+┌─────────────────────┐
+│   REACT FRONTEND    │
+└──────────┬──────────┘
+           │
+           │ POST /login
+           │ {email,password}
+           ▼
+┌─────────────────────┐
+│   EXPRESS SERVER    │
+└──────────┬──────────┘
+           │
+           │ 2. Check User Exists
+           ▼
+┌─────────────────────┐
+│      MONGODB        │
+└──────────┬──────────┘
+           │
+           │ User Data
+           ▼
+┌─────────────────────┐
+│   EXPRESS SERVER    │
+└──────────┬──────────┘
+           │
+           │ 3. Verify Password
+           │ bcrypt.compare()
+           │
+           │ 4. Generate JWT
+           │ jwt.sign()
+           ▼
+┌─────────────────────┐
+│ JWT TOKEN CREATED   │
+└──────────┬──────────┘
+           │
+           │ Send Token
+           ▼
+┌─────────────────────┐
+│   REACT FRONTEND    │
+└──────────┬──────────┘
+           │
+           │ Store Token
+           │ localStorage
+           ▼
+      USER LOGGED IN
+```
+
+---
+
+# Later: Accessing Protected Routes
+
+Suppose user opens Profile Page.
+
+```text
+┌─────────────────────┐
+│   REACT FRONTEND    │
+└──────────┬──────────┘
+           │
+           │ Read Token
+           │ from localStorage
+           │
+           │ GET /profile
+           │ Authorization:
+           │ Bearer JWT
+           ▼
+┌─────────────────────┐
+│   EXPRESS SERVER    │
+└──────────┬──────────┘
+           │
+           │ authMiddleware
+           ▼
+┌─────────────────────┐
+│ Extract JWT Token   │
+└──────────┬──────────┘
+           │
+           │ jwt.verify()
+           ▼
+┌─────────────────────┐
+│ Verify Signature    │
+└───────┬─────┬───────┘
+        │     │
+        │     │
+     Valid   Invalid
+        │     │
+        │     ▼
+        │   401
+        │ Unauthorized
+        │
+        ▼
+┌─────────────────────┐
+│ Extract User ID     │
+│ from Payload        │
+└──────────┬──────────┘
+           │
+           │ req.user=id
+           ▼
+┌─────────────────────┐
+│ Protected Route     │
+└──────────┬──────────┘
+           │
+           │ Query Database
+           ▼
+┌─────────────────────┐
+│      MONGODB        │
+└──────────┬──────────┘
+           │
+           │ User Data
+           ▼
+┌─────────────────────┐
+│   EXPRESS SERVER    │
+└──────────┬──────────┘
+           │
+           │ JSON Response
+           ▼
+┌─────────────────────┐
+│   REACT FRONTEND    │
+└─────────────────────┘
+```
+
+---
+
+# What Happens Internally During Verification?
+
+Suppose token payload is:
+
+```json
+{
+  "id": "12345"
+}
+```
+
+When login happens:
+
+```javascript
+jwt.sign(
+  { id: "12345" },
+  SECRET_KEY
+)
+```
+
+JWT becomes:
+
+```text
+Header.Payload.Signature
+```
+
+Example:
+
+```text
+eyJ...
+eyJpZCI6IjEyMzQ1In0
+abc123xyz
+```
+
+When the token comes back:
+
+```javascript
+jwt.verify(token, SECRET_KEY)
+```
+
+Node.js:
+
+```text
+1. Read Header
+2. Read Payload
+3. Recalculate Signature
+4. Compare Signatures
+5. Check Expiry Time
+```
+
+If everything matches:
+
+```javascript
+req.user = {
+   id: "12345"
+}
+```
+
+Then the route executes.
+
+---
+
+# Real MERN Project Flow
+
+```text
+Signup
+  ↓
+Password Hashed (bcrypt)
+  ↓
+Stored in MongoDB
+  ↓
+Login
+  ↓
+Password Verification
+  ↓
+JWT Generated
+  ↓
+Token Stored in Browser
+  ↓
+Protected Request
+  ↓
+Authorization Header
+  ↓
+Auth Middleware
+  ↓
+jwt.verify()
+  ↓
+User Identified
+  ↓
+Database Access
+  ↓
+Response Returned
+```
+
+### Key Point
+
+The server never stores a session.
+
+Traditional authentication:
+
+```text
+Client → Session ID
+Server → Stores Session
+```
+
+JWT authentication:
+
+```text
+Client → JWT Token
+Server → Verifies Token
+```
+
+That's why JWT is called **stateless authentication** and is widely used in React + Express applications.
