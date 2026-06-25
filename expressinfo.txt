@@ -1,0 +1,128 @@
+1.what is server ?
+A server is a computer program or system that listens for client requests, processes them, and sends back responses. 
+In web development, a server handles business logic, communicates with databases, manages authentication, and 
+serves data or web pages to clients such as browsers and mobile applications. In the MERN stack, Node.js and 
+Express together act as the server.
+
+2.what is routing in express
+Routing is the process of defining how a server responds when a client requests a specific URL (endpoint) using a 
+specific HTTP method.
+In simple terms:
+Routing tells Express which function should run when a particular URL is requested.
+
+Routing in Express is the mechanism that maps incoming HTTP requests to specific handler functions based on the 
+request URL and HTTP method. It allows developers to define how the application responds to different endpoints 
+such as GET, POST, PUT, and DELETE requests. Routing is used to organize application logic and build RESTful APIs 
+efficiently.
+
+3.What is an API?
+API (Application Programming Interface) is a way for two software applications to communicate with each other.
+
+In web development, an API allows the frontend to request data or perform actions on the backend.
+
+Example
+
+Suppose your React frontend needs user data:
+
+Frontend  --->  API  ---> Backend
+
+The API acts like a messenger between the frontend and backend.
+A messenger is a person, system, or application that conveys information or objects from one party to another
+
+4. What is a URL?
+URL (Uniform Resource Locator) is the address of a resource on the internet.
+
+Example:
+
+https://example.com/users
+
+Parts:
+
+https://example.com/users
+|-----| |---------| |---|
+Protocol Domain     Path
+
+Another example:
+
+http://localhost:3000/listings
+
+5. What is an Endpoint?
+
+An endpoint is a specific URL where an API can be accessed.
+
+Examples:
+
+GET    /users
+POST   /users
+GET    /users/1
+DELETE /users/1
+
+Each of these is an endpoint.
+
+Think of it as a specific "door" on the server.
+
+6. What are HTTP Methods?
+
+HTTP methods tell the server what action you want to perform.
+
+The most common methods are:
+
+Method	Purpose
+GET	Read data
+POST	Create data
+PUT	Update entire resource
+PATCH	Update part of resource
+DELETE	Delete data
+GET
+
+Fetch data.
+
+GET /users
+
+Response:
+
+[
+  {"name":"Chandu"}
+]
+POST
+
+Create new data.
+
+POST /users
+
+Body:
+
+{
+  "name":"Chandu"
+}
+
+7.Are HTTP Methods are APIs?
+
+No.
+
+HTTP methods are not APIs.
+
+They are commands used when calling an API.
+
+Analogy
+
+Imagine a restaurant:
+
+Restaurant = API
+Table Number = Endpoint
+Action (Order Food) = HTTP Method
+
+For example:
+
+GET /users
+API = User API
+Endpoint = /users
+HTTP Method = GET
+
+Another:
+
+POST /users
+Same API
+Same endpoint
+Different method
+Different action

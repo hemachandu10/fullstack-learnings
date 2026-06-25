@@ -1,0 +1,92 @@
+1.what is nodejs .explan in detail?
+Node.js is a JavaScript runtime environment that allows you to run JavaScript outside the browser.
+
+Why was Node.js created?
+
+Before Node.js:
+
+Frontend  -> JavaScript
+Backend   -> Java, PHP, Python, C#
+
+Developers had to learn different languages for frontend and backend.
+
+Node.js made it possible to use JavaScript for both.
+
+Frontend -> JavaScript
+Backend  -> JavaScript (Node.js)
+
+This is one reason the MERN stack became popular.
+
+Advantages of Node.js (Short Interview Answer)
+Fast Execution – Uses Google's V8 engine to execute JavaScript quickly.
+Asynchronous & Non-blocking – Can handle many requests simultaneously without waiting for tasks to finish.
+Single Language – JavaScript can be used for both frontend and backend development.
+Scalable – Suitable for applications with a large number of users.
+Large NPM Ecosystem – Thousands of ready-to-use packages and libraries are available.
+Real-time Applications – Excellent for chat apps, live notifications, and streaming services.
+Cross-platform – Runs on Windows, Linux, and macOS.
+
+2.explain Event Loop in detail?
+The Event Loop is the core mechanism in Node.js that enables asynchronous, non-blocking execution using a single thread.
+ When asynchronous operations such as timers, file reads, or database queries are encountered,
+Node.js delegates them to system APIs and continues executing other code. 
+Once these operations complete, their callbacks are placed in a queue. 
+The Event Loop continuously checks whether the Call Stack is empty and, 
+if so, moves queued callbacks to the stack for execution. 
+This allows Node.js to efficiently handle thousands of concurrent requests without creating a separate thread for each request.
+
+2>what is npm.explain in detail?
+NPM (Node Package Manager) is the default package manager for Node.js.
+
+It helps developers:
+
+Install libraries/packages
+Manage project dependencies
+Share code
+Run scripts
+
+What is a Package?
+
+A package is a collection of reusable code.
+
+NPM maintains an online registry containing millions of packages.
+
+Your Project
+      |
+      v
+NPM Registry
+      |
+      v
+Downloads Packages
+
+When you run:
+
+npm install express
+
+NPM downloads Express from the registry and stores it in your project.
+Advantages of NPM
+
+✅ Millions of packages available
+
+✅ Easy dependency management
+
+✅ Saves development time
+
+✅ Handles package versions
+
+✅ Supports scripts and automation
+
+✅ Large community support
+
+NPM (Node Package Manager) is the default package manager for Node.js. It is used to install, manage, update, and 
+share JavaScript packages and project dependencies. NPM provides access to a large registry of reusable libraries, 
+helps maintain package versions through package.json and package-lock.json, and allows developers to automate tasks 
+using custom scripts. It significantly speeds up development by enabling the use of existing, well-tested packages 
+instead of writing everything from scratch.
+
+3.node_modules,package.json,package-lock.json. explain about them?
+package.json is the project's metadata and dependency configuration file.
+ node_modules is the folder where all installed packages and their dependencies are stored. package-lock.
+json records the exact versions of installed packages to ensure consistent installations across different environments. 
+When npm install is executed, NPM reads package.json, downloads packages into node_modules, and uses package-lock.
+json to install the exact versions specified.

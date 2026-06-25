@@ -1,0 +1,199 @@
+1.what is full stack development?
+Full-stack development is the process of building both the front end (what users see and interact with) and 
+the back end (the server, database, and application logic) of a software application.
+The Three Main Parts of a Full-Stack Application
+1. Front End (Client Side)
+
+The user interface that runs in a web browser or mobile app.
+
+Technologies:
+
+HTML
+CSS
+JavaScript
+Frameworks: React, Angular, Vue
+
+Examples:
+
+Login forms
+Navigation menus
+Product pages
+Dashboards
+2. Back End (Server Side)
+
+Handles business logic, authentication, and communication with databases.
+
+Technologies:
+
+Node.js
+Python (Django, Flask, FastAPI)
+Java (Spring Boot)
+PHP (Laravel)
+C# (.NET)
+
+Examples:
+
+Processing payments
+User authentication
+API development
+Data validation
+3. Database
+
+Stores and retrieves application data.
+
+Technologies:
+
+MySQL
+PostgreSQL
+MongoDB
+SQLite
+
+Examples:
+
+User accounts
+Orders
+Blog posts
+Product information
+Example: Online Shopping Website
+
+When a customer clicks "Buy Now":
+
+Front End displays the button.
+Back End receives the request and processes the order.
+Database stores the order details.
+Back End sends a response.
+Front End shows "Order Successful".
+
+A full-stack developer can work on all of these steps.
+
+2.what is mern full stack development?
+MERN Full Stack Development means building complete web applications using four JavaScript technologies:
+
+MERN = MongoDB + Express.js + React + Node.js
+MERN Stack Architecture
+Frontend (React)
+       |
+       v
+Backend API (Express.js + Node.js)
+       |
+       v
+Database (MongoDB)
+1. React (Frontend)
+
+React is used to create the user interface that users interact with.
+
+Examples:
+
+Login page
+Home page
+Dashboard
+Shopping cart
+
+Features:
+
+Component-based architecture
+Fast rendering
+Single Page Applications (SPA)
+2. Node.js (Runtime Environment)
+
+Node.js allows JavaScript to run on the server.
+
+Responsibilities:
+
+Handle requests from the frontend
+Execute server-side logic
+Communicate with databases
+
+Example:
+
+app.get("/users", (req, res) => {
+    res.send("Users data");
+});
+3. Express.js (Backend Framework)
+
+Express is a framework built on Node.js that simplifies server development.
+
+Responsibilities:
+
+Create APIs
+Handle routing
+Manage middleware
+Process HTTP requests and responses
+
+Example:
+
+app.post("/login", loginUser);
+4. MongoDB (Database)
+
+MongoDB is a NoSQL database that stores data as documents.
+
+Example document:
+
+{
+  "name": "Chandu",
+  "email": "chandu@gmail.com",
+  "age": 22
+}
+
+Common operations:
+
+Create data
+Read data
+Update data
+Delete data (CRUD)
+How MERN Works Together
+
+Suppose a user signs up:
+
+Step 1: React
+
+User enters details and clicks "Register".
+
+axios.post("/register", userData);
+Step 2: Express + Node.js
+
+The server receives the request.
+
+app.post("/register", registerUser);
+Step 3: MongoDB
+
+User information is stored in the database.
+
+await User.create(userData);
+Step 4: Response
+
+The server sends a success message back to React.
+
+res.json({ message: "Registration successful" });
+Step 5: React
+
+Displays:
+
+Registration Successful
+
+CONSLUSION:
+MERN Full Stack Development is the process of building complete web applications using MongoDB for the database, 
+Express.js and Node.js for the backend, and React for the frontend. A MERN developer can develop both the client side 
+and server side of an application using JavaScript throughout the entire stack.
+
+3>who the frontend and backend are communicated in fullstack?
+
+Frontend and backend communicate through APIs using HTTP requests and responses. 
+The frontend sends requests (GET, POST, PUT, DELETE) to backend endpoints, 
+the backend processes the request, interacts with the database if needed, 
+and returns data—usually in JSON format—which the frontend uses to update the user interface.
+
+4>why we use http requests to communication between frontent and backend.why not others?
+We use HTTP because it is the standard web protocol supported by all browsers and servers. 
+It is simple, stateless, scalable, and works well for request-response communication. 
+Other protocols such as WebSockets, gRPC, or TCP sockets can also be used, 
+but HTTP is preferred for most web applications because of its simplicity and universal support.
+WebSockets are typically chosen when real-time communication is required, such as in chat or gaming applications.
+
+5>if react is not used in mern then ejs is substitution for that?
+EJS can be used as an alternative to React for rendering the frontend.
+However, EJS is a server-side templating engine where the backend generates HTML and sends it to the browser, 
+whereas React is a frontend library that renders the UI in the browser and 
+communicates with the backend through APIs. Applications using EJS are typically called Express/EJS applications, 
+while applications using React, Express, Node.js, and MongoDB form the MERN stack.
+

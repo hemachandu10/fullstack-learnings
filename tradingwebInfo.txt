@@ -1,0 +1,188 @@
+                                                         ---trading website documentation---
+=> Requirements
+
+# Tools required
+>vsCode - IDE
+>chrome - to see o/p
+>node.js -to build react and backend
+>git
+>git-hub - to save code
+
+#Frontend technologies used
+>html,css,js -to add content,styling,logic(backend and frontend code)
+>react- UI frame work(used to build single page application)
+>bootstramp,material UI -for ready made ui code
+
+#Backend technologies used
+>node.js- js run time environment
+>express.js - api calls,database connectivity (package avalable in npm)
+
+#Database Configuration
+>mongodb - nosql database
+
+#Testing Framework
+>jest -npm package to automatically test the application upon adding features
+
+#Deployment Platform
+eg:render
+
+#gitHub
+>to access the code
+
+=>bootstramp styles
+classes
+#container
+#text-center - make content to center
+#row
+#col
+#border-bottom
+#mt-5
+#pt-5
+
+#about cors
+What is CORS?
+
+CORS (Cross-Origin Resource Sharing) is a browser security mechanism that controls whether a web page can make requests to a different origin.
+
+An origin consists of:
+
+Protocol + Domain + Port
+
+Examples:
+
+URL	Origin
+http://localhost:5173	localhost:5173
+http://localhost:8080	localhost:8080
+https://google.com	google.com (HTTPS)
+
+Since:
+
+Frontend: http://localhost:5173
+Backend : http://localhost:8080
+
+the ports are different, so they are different origins.
+
+Why does CORS exist?
+
+Imagine you're logged into your bank.
+
+If CORS didn't exist, a malicious website could run:
+
+fetch("https://mybank.com/transfer", {
+  method: "POST",
+  body: JSON.stringify({
+    amount: 10000,
+    to: "attacker"
+  })
+});
+
+using your browser and your bank cookies.
+
+CORS helps prevent unauthorized websites from reading responses from other origins.
+
+How CORS works
+
+Suppose your React app sends:
+
+axios.post(
+  "http://localhost:8080/api/auth/register",
+  userData
+);
+Step 1: Browser sends a preflight request
+
+Before the actual POST request, the browser sends:
+
+OPTIONS /api/auth/register HTTP/1.1
+Origin: http://localhost:5173
+
+This is called a preflight request.
+
+Step 2: Backend responds
+
+If the backend allows that origin, it returns:
+
+Access-Control-Allow-Origin: http://localhost:5173
+Access-Control-Allow-Methods: GET,POST,PUT,DELETE
+Access-Control-Allow-Headers: Content-Type
+Step 3: Browser checks headers
+
+If the browser sees:
+
+Access-Control-Allow-Origin
+
+it allows the actual request.
+
+Otherwise:
+
+Blocked by CORS policy
+What does the cors package do?
+
+When you write:
+
+const cors = require("cors");
+
+app.use(cors());
+
+Express automatically sends:
+
+Access-Control-Allow-Origin: *
+
+for every request.
+
+So any origin can access your API.
+
+More secure configuration
+
+Instead of allowing everyone:
+
+app.use(
+  cors({
+    origin: "http://localhost:5173"
+  })
+);
+
+Only your frontend is allowed.
+
+Request flow diagram
+React App (5173)
+       |
+       | POST /register
+       v
+Browser
+       |
+       | OPTIONS (Preflight)
+       v
+Express Server (8080)
+       |
+       | Access-Control-Allow-Origin
+       v
+Browser
+       |
+       | Allowed?
+       +---- Yes ---> Send actual POST
+       |
+       +---- No ----> CORS Error
+Important
+
+CORS is enforced by browsers only.
+
+Tools like:
+
+Postman
+Thunder Client
+curl
+
+do not enforce CORS, so requests from them usually work even when the browser shows a CORS error.
+
+For MERN development, you'll almost always add:
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true
+  })
+);
+
+near the top of your Express server.
+
+

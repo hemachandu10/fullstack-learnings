@@ -1,0 +1,17 @@
+# react-router-dom package for navigating b/w pages 
+Components
+BrowserRouter,Routers,Route(path,element attribute),Link(to attibute).
+# axios package to send html requests
+let result= awiat axios.post("path",{body},..)
+let result=await axios.get('path')
+#map function js
+#versal.json file to rewrite the request in react while navigating
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
+
